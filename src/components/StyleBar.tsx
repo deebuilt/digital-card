@@ -7,33 +7,39 @@ interface StyleBarProps {
   onChange: (card: CardData) => void;
 }
 
-const STYLES: { value: CardStyle; label: string }[] = [
-  { value: 'modern', label: 'Monogram' },
-  { value: 'clean', label: 'Wordmark' },
-  { value: 'bold', label: 'Full Bleed' },
-  { value: 'minimal', label: 'Editorial' },
-  { value: 'neon', label: 'Dark Mode' },
+const STYLE_GROUPS: { group: string; items: { value: CardStyle; label: string }[] }[] = [
+  {
+    group: 'Business Card',
+    items: [
+      { value: 'modern', label: 'Monogram' },
+      { value: 'clean', label: 'Wordmark' },
+      { value: 'bold', label: 'Full Bleed' },
+      { value: 'minimal', label: 'Editorial' },
+      { value: 'neon', label: 'Dark Mode' },
+    ],
+  },
+  {
+    group: 'Contact Card',
+    items: [
+      { value: 'profile', label: 'Profile' },
+      { value: 'split', label: 'Split' },
+      { value: 'stacked', label: 'Stacked' },
+    ],
+  },
 ];
 
-// Muted, professional business card colors
+const ALL_STYLES = STYLE_GROUPS.flatMap(g => g.items);
+
 const COLORS = [
-  '#2D3748', // charcoal
-  '#4A6741', // sage
-  '#8B6F47', // warm brown
-  '#6B5B73', // dusty mauve
-  '#2E5266', // deep teal
-  '#9B4D4D', // muted burgundy
-  '#5C6B5C', // olive
-  '#7A6855', // tan
-  '#3D5A80', // steel blue
-  '#704C38', // coffee
+  '#2D3748', '#4A6741', '#8B6F47', '#6B5B73', '#2E5266',
+  '#9B4D4D', '#5C6B5C', '#7A6855', '#3D5A80', '#704C38',
 ];
 
 const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
   const [styleOpen, setStyleOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
-  const currentStyle = STYLES.find(s => s.value === card.cardStyle);
+  const currentStyle = ALL_STYLES.find(s => s.value === card.cardStyle);
 
   const set = (key: keyof CardData, value: string | boolean) => onChange({ ...card, [key]: value });
 
@@ -45,7 +51,7 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
   }, [styleOpen]);
 
   return (
-    <div className="bg-card rounded-xl p-3 shadow-sm border border-border/60 space-y-3">
+    <div className="bg-card rounded-xl p-3 border border-border/60 space-y-3" style={{ boxShadow: '0 2px 6px -1px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.04)' }}>
       {/* Style dropdown */}
       <div>
         <button
@@ -65,14 +71,19 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
               className="fixed z-[9999] bg-card rounded-lg border border-border shadow-lg overflow-hidden"
               style={{ top: menuPos.top, left: menuPos.left, width: menuPos.width }}
             >
-              {STYLES.map(style => (
-                <button
-                  key={style.value}
-                  onClick={() => { set('cardStyle', style.value); setStyleOpen(false); }}
-                  className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${card.cardStyle === style.value ? 'bg-foreground text-background font-medium' : 'hover:bg-accent text-foreground'}`}
-                >
-                  {style.label}
-                </button>
+              {STYLE_GROUPS.map(group => (
+                <div key={group.group}>
+                  <div className="px-3 pt-2 pb-1 text-[10px] font-medium tracking-wider uppercase text-muted-foreground">{group.group}</div>
+                  {group.items.map(style => (
+                    <button
+                      key={style.value}
+                      onClick={() => { set('cardStyle', style.value); setStyleOpen(false); }}
+                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${card.cardStyle === style.value ? 'bg-foreground text-background font-medium' : 'hover:bg-accent text-foreground'}`}
+                    >
+                      {style.label}
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
           </>,
@@ -80,7 +91,7 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
         )}
       </div>
 
-      {/* Color swatches + initials toggle row */}
+      {/* Color swatches + initials toggle */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 flex-wrap flex-1">
           {COLORS.map(c => (
@@ -104,8 +115,6 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
             title="Custom color"
           />
         </div>
-
-        {/* Initials toggle */}
         <button
           role="switch"
           aria-checked={card.showInitials}

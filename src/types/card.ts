@@ -1,4 +1,4 @@
-export type CardStyle = 'modern' | 'clean' | 'bold' | 'minimal' | 'neon';
+export type CardStyle = 'modern' | 'clean' | 'bold' | 'minimal' | 'neon' | 'profile' | 'split' | 'stacked';
 
 export interface CardData {
   fullName: string;
