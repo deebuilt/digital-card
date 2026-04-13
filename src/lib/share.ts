@@ -1,7 +1,9 @@
 import { CardData } from '@/types/card';
 
 export function encodeCardToHash(card: CardData): string {
-  const json = JSON.stringify(card);
+  // Exclude photo — base64 data URLs are too large for QR codes and URLs
+  const { photo, ...shareable } = card;
+  const json = JSON.stringify(shareable);
   return btoa(unescape(encodeURIComponent(json)));
 }
 
