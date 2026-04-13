@@ -7,9 +7,10 @@ interface StyleBarProps {
   onChange: (card: CardData) => void;
 }
 
-const STYLE_GROUPS: { group: string; items: { value: CardStyle; label: string }[] }[] = [
+const STYLE_GROUPS: { group: string; hint: string; items: { value: CardStyle; label: string }[] }[] = [
   {
     group: 'Business Card',
+    hint: 'for image export',
     items: [
       { value: 'modern', label: 'Monogram' },
       { value: 'clean', label: 'Wordmark' },
@@ -20,6 +21,7 @@ const STYLE_GROUPS: { group: string; items: { value: CardStyle; label: string }[
   },
   {
     group: 'Contact Card',
+    hint: 'for sharing links',
     items: [
       { value: 'profile', label: 'Profile' },
       { value: 'split', label: 'Split' },
@@ -73,7 +75,10 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
             >
               {STYLE_GROUPS.map(group => (
                 <div key={group.group}>
-                  <div className="px-3 pt-2 pb-1 text-[10px] font-medium tracking-wider uppercase text-muted-foreground">{group.group}</div>
+                  <div className="px-3 pt-2.5 pb-0.5">
+                    <span className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">{group.group}</span>
+                    <span className="text-[9px] text-muted-foreground/60 ml-1.5">{group.hint}</span>
+                  </div>
                   {group.items.map(style => (
                     <button
                       key={style.value}

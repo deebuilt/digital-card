@@ -13,6 +13,15 @@ export function generateVCard(card: CardData): string {
   if (card.email) lines.push(`EMAIL;TYPE=INTERNET:${card.email}`);
   if (card.website) lines.push(`URL:${card.website}`);
   if (card.address) lines.push(`ADR;TYPE=WORK:;;${card.address};;;;`);
+  if (card.photo) {
+    // Extract base64 data and mime type from data URL
+    const match = card.photo.match(/^data:image\/(\w+);base64,(.+)$/);
+    if (match) {
+      const type = match[1].toUpperCase();
+      const data = match[2];
+      lines.push(`PHOTO;ENCODING=b;TYPE=${type}:${data}`);
+    }
+  }
   if (card.instagram) {
     const handle = card.instagram.replace('@', '');
     lines.push(`X-SOCIALPROFILE;TYPE=instagram:https://instagram.com/${handle}`);

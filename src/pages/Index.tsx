@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CardData, emptyCard } from '@/types/card';
 import { decodeCardFromHash } from '@/lib/share';
 import AppLogo from '@/components/AppLogo';
@@ -12,6 +12,7 @@ import SharedCardView from '@/components/SharedCardView';
 const STORAGE_KEY = 'business-card-data';
 
 const Index: React.FC = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dataParam = searchParams.get('data');
   const sharedCard = dataParam ? decodeCardFromHash(dataParam) : null;
@@ -64,6 +65,12 @@ const Index: React.FC = () => {
         <div className="bg-card rounded-xl p-4 border border-border/60 animate-fade-in-up" style={{ animationDelay: '0.15s', boxShadow: '0 2px 6px -1px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.04)' }}>
           <CardForm card={card} onChange={setCard} />
         </div>
+
+        <footer className="flex items-center justify-center gap-1.5 py-3 animate-fade-in" style={{ animationDelay: '0.25s' }}>
+          <button onClick={() => navigate('/about')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">How to Use</button>
+          <span className="text-muted-foreground/40">·</span>
+          <button onClick={() => navigate('/privacy')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy</button>
+        </footer>
       </main>
     </div>
   );

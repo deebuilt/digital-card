@@ -1,7 +1,6 @@
 import React from 'react';
 import { CardTemplateProps, getInitials, withAlpha, darken, lighten, buildContacts, buildSocials, Icons, ContactEntry } from './shared';
 
-// Contact field with icon + label in a rounded pill
 const ContactPill = ({ entry, accent }: { entry: ContactEntry; accent: string }) => {
   const Icon = entry.icon;
   const inner = (
@@ -14,7 +13,6 @@ const ContactPill = ({ entry, accent }: { entry: ContactEntry; accent: string })
   return inner;
 };
 
-// Social icon circle
 const SocialCircle = ({ entry, accent }: { entry: ContactEntry; accent: string }) => {
   const Icon = entry.icon;
   const el = (
@@ -26,30 +24,34 @@ const SocialCircle = ({ entry, accent }: { entry: ContactEntry; accent: string }
   return el;
 };
 
-/** Centered profile card — photo on top, stacked info, pill contacts, social row */
+/** Centered profile card */
 export const ProfileCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
-  const { fullName, title, businessName, photo, accentColor } = card;
+  const { fullName, title, businessName, photo, accentColor, showInitials } = card;
   const accent = accentColor || '#2D3748';
   const initials = getInitials(fullName || 'Your Name');
+  const si = showInitials !== false;
+  const showAvatar = photo || si;
   const contacts = buildContacts(card).filter(e => e.icon !== Icons.pin && e.icon !== Icons.instagram && e.icon !== Icons.facebook && e.icon !== Icons.linkedin && e.icon !== Icons.tiktok && e.icon !== Icons.twitter && e.icon !== Icons.youtube && e.icon !== Icons.whatsapp && e.icon !== Icons.threads);
   const socials = buildSocials(card);
 
   return (
     <div ref={cardRef} className="w-full overflow-hidden rounded-xl bg-white transition-all duration-300" style={{ maxWidth: 400, boxShadow: '0 2px 16px -4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)' }}>
       {/* Accent header band */}
-      <div className="h-20 relative" style={{ background: `linear-gradient(135deg, ${accent}, ${darken(accent, 0.2)})` }}>
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 0%, rgba(255,255,255,0.1), transparent 60%)' }} />
+      <div className="relative" style={{ height: showAvatar ? 80 : 6, background: `linear-gradient(135deg, ${accent}, ${darken(accent, 0.2)})` }}>
+        {showAvatar && <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 0%, rgba(255,255,255,0.1), transparent 60%)' }} />}
       </div>
       {/* Profile photo / initials overlapping the band */}
-      <div className="flex justify-center -mt-10 relative z-10">
-        {photo ? (
-          <img src={photo} alt="" className="w-20 h-20 rounded-full object-cover" style={{ border: '3px solid white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-        ) : (
-          <div className="w-20 h-20 rounded-full flex items-center justify-center text-[24px] font-semibold tracking-wider" style={{ background: withAlpha(accent, 0.1), color: accent, border: '3px solid white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            {initials}
-          </div>
-        )}
-      </div>
+      {showAvatar && (
+        <div className="flex justify-center -mt-10 relative z-10">
+          {photo ? (
+            <img src={photo} alt="" className="w-20 h-20 rounded-full object-cover bg-white" style={{ border: '3px solid white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+          ) : (
+            <div className="w-20 h-20 rounded-full flex items-center justify-center text-[24px] font-semibold tracking-wider bg-white" style={{ color: accent, border: `2.5px solid ${withAlpha(accent, 0.15)}`, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+              {initials}
+            </div>
+          )}
+        </div>
+      )}
       {/* Name / title / business */}
       <div className="text-center px-5 pt-3 pb-1">
         <h2 className="text-[18px] font-semibold tracking-tight" style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
@@ -85,7 +87,7 @@ export const ProfileCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
   );
 };
 
-/** Split card — accent panel left, content right, portrait orientation */
+/** Split card — accent panel left, content right */
 export const SplitCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
   const { fullName, title, businessName, photo, accentColor, showInitials } = card;
   const accent = accentColor || '#2D3748';
@@ -111,7 +113,6 @@ export const SplitCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
               <p className="text-[10px] font-medium leading-tight" style={{ color: 'rgba(255,255,255,0.85)' }}>{businessName}</p>
             </div>
           )}
-          {/* Social icons */}
           {socials.length > 0 && (
             <div className="flex flex-wrap justify-center gap-1.5 mt-auto pt-3">
               {socials.slice(0, 6).map(e => {
@@ -147,11 +148,13 @@ export const SplitCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
   );
 };
 
-/** Minimal stacked card — clean, centered, generous whitespace */
+/** Minimal stacked card */
 export const StackedCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
-  const { fullName, title, businessName, photo, accentColor } = card;
+  const { fullName, title, businessName, photo, accentColor, showInitials } = card;
   const accent = accentColor || '#2D3748';
   const initials = getInitials(fullName || 'Your Name');
+  const si = showInitials !== false;
+  const showAvatar = photo || si;
   const contacts = buildContacts(card).filter(e => e.icon !== Icons.instagram && e.icon !== Icons.facebook && e.icon !== Icons.linkedin && e.icon !== Icons.tiktok && e.icon !== Icons.twitter && e.icon !== Icons.youtube && e.icon !== Icons.whatsapp && e.icon !== Icons.threads);
   const socials = buildSocials(card);
 
@@ -159,15 +162,17 @@ export const StackedCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
     <div ref={cardRef} className="w-full overflow-hidden rounded-xl bg-white transition-all duration-300" style={{ maxWidth: 400, boxShadow: `0 0 0 1px ${withAlpha(accent, 0.08)}, 0 4px 20px -8px rgba(0,0,0,0.08)` }}>
       <div className="flex flex-col items-center px-6 pt-8 pb-6">
         {/* Photo / initials */}
-        {photo ? (
-          <img src={photo} alt="" className="w-[72px] h-[72px] rounded-full object-cover" style={{ border: `2.5px solid ${withAlpha(accent, 0.15)}`, boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }} />
-        ) : (
-          <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-[22px] font-semibold tracking-wider" style={{ background: withAlpha(accent, 0.08), color: accent }}>
-            {initials}
-          </div>
+        {showAvatar && (
+          photo ? (
+            <img src={photo} alt="" className="w-[72px] h-[72px] rounded-full object-cover" style={{ border: `2.5px solid ${withAlpha(accent, 0.15)}`, boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }} />
+          ) : (
+            <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-[22px] font-semibold tracking-wider" style={{ background: withAlpha(accent, 0.08), color: accent }}>
+              {initials}
+            </div>
+          )
         )}
         {/* Name block */}
-        <h2 className="mt-4 text-[20px] font-semibold tracking-tight text-center" style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
+        <h2 className={`text-[20px] font-semibold tracking-tight text-center ${showAvatar ? 'mt-4' : ''}`} style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
         {title && <p className="mt-1 text-[10px] font-medium tracking-[0.15em] uppercase text-center" style={{ color: accent }}>{title}</p>}
         {businessName && <p className="mt-0.5 text-[12px] text-gray-500 text-center">{businessName}</p>}
         {/* Divider */}
