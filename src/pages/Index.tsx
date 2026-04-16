@@ -70,6 +70,13 @@ const Index: React.FC = () => {
           <button onClick={() => navigate('/about')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">How to Use</button>
           <span className="text-muted-foreground/40">·</span>
           <button onClick={() => navigate('/privacy')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy</button>
+          <span className="text-muted-foreground/40">·</span>
+          <span className="text-xs text-muted-foreground">
+            By{' '}
+            <a href="https://opsette.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+              Opsette
+            </a>
+          </span>
         </footer>
       </main>
     </div>

@@ -59,6 +59,13 @@ const About: React.FC = () => {
             <h2 className="font-semibold text-foreground mb-1.5">Your data stays local</h2>
             <p>Everything is stored in your browser. Nothing is sent to any server. Shared links encode your card data directly in the URL — no backend required.</p>
           </section>
+
+          <p className="text-xs text-muted-foreground/70 pt-2">
+            A business tool from Opsette Marketplace. Find more tools at{' '}
+            <a href="https://opsette.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+              opsette.io
+            </a>.
+          </p>
         </div>
       </main>
     </div>
