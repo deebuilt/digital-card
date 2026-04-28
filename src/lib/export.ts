@@ -7,8 +7,18 @@ const triggerDownload = (dataUrl: string, filename: string) => {
   a.click();
 };
 
+// html-to-image screenshots whatever is rendered at call time; if a Google
+// Font hasn't finished swapping in, the export uses the fallback. Wait for
+// document.fonts.ready before capturing so chosen fonts always render.
+const ensureFontsReady = async () => {
+  if (typeof document !== 'undefined' && document.fonts?.ready) {
+    try { await document.fonts.ready; } catch { /* fall through */ }
+  }
+};
+
 /** Web-quality PNG of an on-screen card. Transparent outside rounded corners. */
 export const exportWebImage = async (node: HTMLElement, filename: string) => {
+  await ensureFontsReady();
   const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, backgroundColor: undefined });
   triggerDownload(dataUrl, filename);
 };
@@ -19,6 +29,7 @@ export const exportWebImage = async (node: HTMLElement, filename: string) => {
  * undefined so rounded corners export with transparency.
  */
 export const exportPrintImage = async (node: HTMLElement, filename: string) => {
+  await ensureFontsReady();
   const pixelRatio = 300 / 96;
   const dataUrl = await toPng(node, { pixelRatio, cacheBust: true, backgroundColor: undefined });
   triggerDownload(dataUrl, filename);

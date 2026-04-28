@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Space, theme as antdTheme } from 'antd';
+import { Space, Grid, theme as antdTheme } from 'antd';
 import { CardData, emptyCard } from '@/types/card';
 import { decodeCardFromHash } from '@/lib/share';
 import AppLogo from '@/components/AppLogo';
@@ -18,6 +18,8 @@ const Index: React.FC = () => {
   const dataParam = searchParams.get('data');
   const sharedCard = dataParam ? decodeCardFromHash(dataParam) : null;
   const { token } = antdTheme.useToken();
+  const screens = Grid.useBreakpoint();
+  const isDesktop = !!screens.md;
 
   const [card, setCard] = useState<CardData>(() => {
     try {
@@ -48,6 +50,39 @@ const Index: React.FC = () => {
     boxShadow: '0 2px 6px -1px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.04)',
   };
 
+  const headerInnerMaxWidth = isDesktop ? 1200 : 480;
+  const headerInnerPadding = isDesktop ? '12px 24px' : '12px 16px';
+
+  const footer = (
+    <footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 0' }} className="animate-fade-in">
+      <Space split={<span style={{ color: token.colorTextQuaternary }}>·</span>} size="small">
+        <button
+          onClick={() => navigate('/about')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: token.colorTextSecondary, padding: 0 }}
+        >
+          How to Use
+        </button>
+        <button
+          onClick={() => navigate('/privacy')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: token.colorTextSecondary, padding: 0 }}
+        >
+          Privacy
+        </button>
+        <span style={{ fontSize: 12, color: token.colorTextSecondary }}>
+          By{' '}
+          <a
+            href="https://opsette.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'underline' }}
+          >
+            Opsette
+          </a>
+        </span>
+      </Space>
+    </footer>
+  );
+
   return (
     <div style={{ minHeight: '100dvh', background: token.colorBgLayout }}>
       <header
@@ -60,66 +95,86 @@ const Index: React.FC = () => {
           boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
         }}
       >
-        <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px' }}>
+        <div style={{ maxWidth: headerInnerMaxWidth, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 10, padding: headerInnerPadding }}>
           <AppLogo size={28} />
           <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', color: token.colorText, margin: 0 }}>CardCraft</h1>
         </div>
       </header>
 
-      <main
-        style={{
-          maxWidth: 480,
-          margin: '0 auto',
-          padding: '16px 16px max(2rem, env(safe-area-inset-bottom))',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-      >
-        <div className="animate-fade-in-up">
-          <StyleBar card={card} onChange={setCard} />
-        </div>
+      {isDesktop ? (
+        <main
+          style={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            padding: '24px 24px max(2rem, env(safe-area-inset-bottom))',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 6fr) minmax(0, 5fr)',
+            gap: 32,
+            alignItems: 'start',
+          }}
+        >
+          {/* Left column: controls + form scroll naturally */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="animate-fade-in-up">
+              <StyleBar card={card} onChange={setCard} />
+            </div>
 
-        <div className="animate-scale-in" style={{ animationDelay: '0.05s' }}>
-          <CardPreview card={card} cardRef={cardRef} showGuides={card.showPrintGuides} />
-        </div>
+            <div className="animate-fade-in-up" style={{ ...surface, padding: 16, animationDelay: '0.15s' }}>
+              <CardForm card={card} onChange={setCard} />
+            </div>
 
-        <div className="animate-fade-in-up" style={{ ...surface, padding: 12, animationDelay: '0.1s' }}>
-          <ActionBar card={card} cardRef={cardRef} onSave={handleSave} />
-        </div>
+            {footer}
+          </div>
 
-        <div className="animate-fade-in-up" style={{ ...surface, padding: 16, animationDelay: '0.15s' }}>
-          <CardForm card={card} onChange={setCard} />
-        </div>
+          {/* Right column: preview pinned, scrolls with the page until it hits the top */}
+          <div
+            style={{
+              position: 'sticky',
+              top: 76, // header height + small breathing room
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div className="animate-scale-in">
+              <CardPreview card={card} cardRef={cardRef} showGuides={card.showPrintGuides} sizeCap={640} />
+            </div>
 
-        <footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 0' }} className="animate-fade-in">
-          <Space split={<span style={{ color: token.colorTextQuaternary }}>·</span>} size="small">
-            <button
-              onClick={() => navigate('/about')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: token.colorTextSecondary, padding: 0 }}
-            >
-              How to Use
-            </button>
-            <button
-              onClick={() => navigate('/privacy')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: token.colorTextSecondary, padding: 0 }}
-            >
-              Privacy
-            </button>
-            <span style={{ fontSize: 12, color: token.colorTextSecondary }}>
-              By{' '}
-              <a
-                href="https://opsette.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'inherit', textDecoration: 'underline' }}
-              >
-                Opsette
-              </a>
-            </span>
-          </Space>
-        </footer>
-      </main>
+            <div className="animate-fade-in-up" style={{ ...surface, padding: 12, animationDelay: '0.1s' }}>
+              <ActionBar card={card} cardRef={cardRef} onSave={handleSave} />
+            </div>
+          </div>
+        </main>
+      ) : (
+        <main
+          style={{
+            maxWidth: 480,
+            margin: '0 auto',
+            padding: '16px 16px max(2rem, env(safe-area-inset-bottom))',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+          }}
+        >
+          <div className="animate-fade-in-up">
+            <StyleBar card={card} onChange={setCard} />
+          </div>
+
+          <div className="animate-scale-in" style={{ animationDelay: '0.05s' }}>
+            <CardPreview card={card} cardRef={cardRef} showGuides={card.showPrintGuides} />
+          </div>
+
+          <div className="animate-fade-in-up" style={{ ...surface, padding: 12, animationDelay: '0.1s' }}>
+            <ActionBar card={card} cardRef={cardRef} onSave={handleSave} />
+          </div>
+
+          <div className="animate-fade-in-up" style={{ ...surface, padding: 16, animationDelay: '0.15s' }}>
+            <CardForm card={card} onChange={setCard} />
+          </div>
+
+          {footer}
+        </main>
+      )}
     </div>
   );
 };

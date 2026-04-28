@@ -1,5 +1,6 @@
 import React from 'react';
 import { CardTemplateProps, getInitials, withAlpha, darken, lighten, buildContacts, buildSocials, Icons, ContactEntry } from './shared';
+import { resolveFontStack } from '@/lib/fonts';
 
 const ContactPill = ({ entry, accent }: { entry: ContactEntry; accent: string }) => {
   const Icon = entry.icon;
@@ -54,9 +55,9 @@ export const ProfileCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
       )}
       {/* Name / title / business */}
       <div className="text-center px-5 pt-3 pb-1">
-        <h2 className="text-[18px] font-semibold tracking-tight" style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
-        {title && <p className="mt-1 text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: accent }}>{title}</p>}
-        {businessName && <p className="mt-0.5 text-[12px] font-medium text-gray-500">{businessName}</p>}
+        <h2 className="text-[18px] font-semibold tracking-tight" style={{ color: '#1a1a1a', fontFamily: resolveFontStack(card.nameFont) }}>{fullName || 'Your Name'}</h2>
+        {title && <p className="mt-1 text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: accent, fontFamily: resolveFontStack(card.bodyFont) }}>{title}</p>}
+        {businessName && <p className="mt-0.5 text-[12px] font-medium text-gray-500" style={{ fontFamily: resolveFontStack(card.bodyFont) }}>{businessName}</p>}
       </div>
       {/* Contact pills */}
       {contacts.length > 0 && (
@@ -110,7 +111,7 @@ export const SplitCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
           ) : <div />}
           {businessName && (
             <div className="text-center mt-3">
-              <p className="text-[10px] font-medium leading-tight" style={{ color: 'rgba(255,255,255,0.85)' }}>{businessName}</p>
+              <p className="text-[10px] font-medium leading-tight" style={{ color: 'rgba(255,255,255,0.85)', fontFamily: resolveFontStack(card.bodyFont) }}>{businessName}</p>
             </div>
           )}
           {socials.length > 0 && (
@@ -125,8 +126,8 @@ export const SplitCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
         </div>
         {/* Right content */}
         <div className="flex flex-col justify-center px-4 py-5">
-          <h2 className="text-[20px] font-bold tracking-tight" style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
-          {title && <p className="mt-1 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ color: accent }}>{title}</p>}
+          <h2 className="text-[20px] font-bold tracking-tight" style={{ color: '#1a1a1a', fontFamily: resolveFontStack(card.nameFont) }}>{fullName || 'Your Name'}</h2>
+          {title && <p className="mt-1 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ color: accent, fontFamily: resolveFontStack(card.bodyFont) }}>{title}</p>}
           <div className="h-px w-10 my-3" style={{ background: withAlpha(accent, 0.2) }} />
           {contacts.length > 0 && (
             <div className="space-y-2">
@@ -172,9 +173,9 @@ export const StackedCard: React.FC<CardTemplateProps> = ({ card, cardRef }) => {
           )
         )}
         {/* Name block */}
-        <h2 className={`text-[20px] font-semibold tracking-tight text-center ${showAvatar ? 'mt-4' : ''}`} style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
-        {title && <p className="mt-1 text-[10px] font-medium tracking-[0.15em] uppercase text-center" style={{ color: accent }}>{title}</p>}
-        {businessName && <p className="mt-0.5 text-[12px] text-gray-500 text-center">{businessName}</p>}
+        <h2 className={`text-[20px] font-semibold tracking-tight text-center ${showAvatar ? 'mt-4' : ''}`} style={{ color: '#1a1a1a', fontFamily: resolveFontStack(card.nameFont) }}>{fullName || 'Your Name'}</h2>
+        {title && <p className="mt-1 text-[10px] font-medium tracking-[0.15em] uppercase text-center" style={{ color: accent, fontFamily: resolveFontStack(card.bodyFont) }}>{title}</p>}
+        {businessName && <p className="mt-0.5 text-[12px] text-gray-500 text-center" style={{ fontFamily: resolveFontStack(card.bodyFont) }}>{businessName}</p>}
         {/* Divider */}
         <div className="w-10 h-px my-4" style={{ background: withAlpha(accent, 0.15) }} />
         {/* Contact rows */}

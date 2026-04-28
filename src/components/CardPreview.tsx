@@ -9,6 +9,10 @@ interface CardPreviewProps {
   card: CardData;
   cardRef?: React.RefObject<HTMLDivElement>;
   showGuides?: boolean;
+  /** Override the on-screen size cap. Business cards default to 400 (the
+   * shorter side); handouts default to 540 (the longer side). Pass a larger
+   * value on desktop to use the extra horizontal room. */
+  sizeCap?: number;
 }
 
 const templates: Record<string, React.FC<{ card: CardData; cardRef?: React.RefObject<HTMLDivElement>; dimensions?: Dimensions }>> = {
@@ -57,7 +61,7 @@ const PrintGuides: React.FC<{ dimensions: Dimensions }> = ({ dimensions }) => {
   );
 };
 
-const CardPreview: React.FC<CardPreviewProps> = ({ card, cardRef, showGuides }) => {
+const CardPreview: React.FC<CardPreviewProps> = ({ card, cardRef, showGuides, sizeCap }) => {
   const Template = templates[card.cardStyle] || MonogramCard;
   const dims = getDimensions(card.cardSize);
   const isBusiness = isBusinessStyle(card.cardStyle);
@@ -68,13 +72,14 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card, cardRef, showGuides }) 
   const guidesActive = !!showGuides && passDims && dims.showGuides;
 
   // Handouts: anchor by the longer dimension so different print sizes stay
-  // proportional on screen (5×7 visibly larger than 4×6). Business cards keep
-  // the legacy 400 cap.
-  const handoutTargetLongPx = 540;
+  // proportional on screen (5×7 visibly larger than 4×6). Business cards
+  // anchor by width.
+  const handoutTargetLongPx = sizeCap ?? 540;
+  const businessWidthCap = sizeCap ?? 400;
   const handoutWidthCap = isHandout
     ? Math.round(handoutTargetLongPx * (dims.trimWIn / Math.max(dims.trimWIn, dims.trimHIn)))
-    : 400;
-  const widthCap = isHandout ? handoutWidthCap : 400;
+    : businessWidthCap;
+  const widthCap = isHandout ? handoutWidthCap : businessWidthCap;
   const bleedPad = guidesActive ? 16 : 0;
 
   return (

@@ -11,6 +11,7 @@ import {
   isHandoutStyle,
 } from '@/types/card';
 import { SIZE_OPTIONS, HANDOUT_SIZE_OPTIONS, getDimensions } from '@/lib/print';
+import { FONT_OPTIONS } from '@/lib/fonts';
 
 interface StyleBarProps {
   card: CardData;
@@ -64,6 +65,31 @@ interface ColorOverrideProps {
   onChange: (v: string) => void;
   token: ReturnType<typeof antdTheme.useToken>['token'];
 }
+
+interface FontSelectProps {
+  value: string;
+  onChange: (v: string) => void;
+}
+
+const FontSelect: React.FC<FontSelectProps> = ({ value, onChange }) => {
+  const selected = FONT_OPTIONS.find(f => f.value === value) ?? FONT_OPTIONS[0];
+  return (
+    <Select
+      size="small"
+      value={value}
+      onChange={onChange}
+      style={{ width: 150 }}
+      popupMatchSelectWidth={220}
+      labelRender={() => (
+        <span style={{ fontFamily: selected.stack || undefined }}>{selected.label}</span>
+      )}
+      options={FONT_OPTIONS.map(f => ({
+        value: f.value,
+        label: <span style={{ fontFamily: f.stack || undefined }}>{f.label}</span>,
+      }))}
+    />
+  );
+};
 
 const ColorOverride: React.FC<ColorOverrideProps> = ({ value, fallback, onChange, token }) => {
   const isOverridden = !!value;
@@ -302,6 +328,44 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
           )}
         </div>
       )}
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+          paddingTop: 10,
+          borderTop: `1px dashed ${token.colorBorderSecondary}`,
+        }}
+      >
+        {isHandout ? (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Headline font</span>
+              <FontSelect value={card.headlineFont} onChange={(v) => set('headlineFont', v)} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Sub-headline font</span>
+              <FontSelect value={card.subheadlineFont} onChange={(v) => set('subheadlineFont', v)} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Blurb font</span>
+              <FontSelect value={card.blurbFont} onChange={(v) => set('blurbFont', v)} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Name font</span>
+              <FontSelect value={card.nameFont} onChange={(v) => set('nameFont', v)} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Body font</span>
+              <FontSelect value={card.bodyFont} onChange={(v) => set('bodyFont', v)} />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

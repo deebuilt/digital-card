@@ -15,6 +15,10 @@ const App = () => (
       token: {
         colorPrimary: '#243958',
         borderRadius: 8,
+        controlHeight: 38,
+        // Crisper border so inputs read as solid surfaces, not flimsy outlines.
+        colorBorder: '#d9dde3',
+        colorBgContainer: '#ffffff',
       },
     }}
   >

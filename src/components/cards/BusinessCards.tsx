@@ -1,5 +1,6 @@
 import React from 'react';
 import { CardTemplateProps, getInitials, withAlpha, darken, lighten, splitContacts, ContactRow, Icons } from './shared';
+import { resolveFontStack } from '@/lib/fonts';
 
 export const MonogramCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimensions }) => {
   const { fullName, title, businessName, photo, accentColor, showInitials } = card;
@@ -9,6 +10,8 @@ export const MonogramCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimen
   const { items, address } = splitContacts(card, 6);
   const sm = items.length > 4;
   const ar = dimensions?.aspectRatio ?? '1.75 / 1';
+  const nameFont = resolveFontStack(card.nameFont);
+  const bodyFont = resolveFontStack(card.bodyFont);
 
   return (
     <div ref={cardRef} className="w-full overflow-hidden rounded-xl bg-white transition-all duration-300" style={{ maxWidth: 400, aspectRatio: ar, boxShadow: `0 8px 32px -8px ${withAlpha(accent, 0.2)}, 0 0 0 1px ${withAlpha(accent, 0.06)}` }}>
@@ -26,9 +29,9 @@ export const MonogramCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimen
           {!si && <div className="absolute top-0 left-0 w-full h-[2.5px]" style={{ background: accent }} />}
           <div className="min-w-0 flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h2 className="truncate text-[16px] font-semibold leading-tight tracking-tight" style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
-              {title && <p className="mt-0.5 text-[9px] text-gray-500 truncate">{title}</p>}
-              {businessName && <p className="mt-0.5 text-[11px] font-medium truncate" style={{ color: darken(accent, 0.05) }}>{businessName}</p>}
+              <h2 className="truncate text-[16px] font-semibold leading-tight tracking-tight" style={{ color: '#1a1a1a', fontFamily: nameFont }}>{fullName || 'Your Name'}</h2>
+              {title && <p className="mt-0.5 text-[9px] text-gray-500 truncate" style={{ fontFamily: bodyFont }}>{title}</p>}
+              {businessName && <p className="mt-0.5 text-[11px] font-medium truncate" style={{ color: darken(accent, 0.05), fontFamily: bodyFont }}>{businessName}</p>}
             </div>
             {!si && photo && <img src={photo} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" style={{ border: `1px solid ${withAlpha(accent, 0.1)}` }} />}
           </div>
@@ -58,6 +61,8 @@ export const WordmarkCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimen
   const { items, address } = splitContacts(card, 4);
   const sm = items.length > 3;
   const ar = dimensions?.aspectRatio ?? '1.75 / 1';
+  const nameFont = resolveFontStack(card.nameFont);
+  const bodyFont = resolveFontStack(card.bodyFont);
 
   return (
     <div ref={cardRef} className="relative w-full overflow-hidden rounded-xl bg-white transition-all duration-300" style={{ maxWidth: 400, aspectRatio: ar, boxShadow: '0 4px 20px -6px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04)' }}>
@@ -67,11 +72,11 @@ export const WordmarkCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimen
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-2 min-w-0">
-              <h2 className="truncate text-[17px] font-semibold leading-none tracking-tight" style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
+              <h2 className="truncate text-[17px] font-semibold leading-none tracking-tight" style={{ color: '#1a1a1a', fontFamily: nameFont }}>{fullName || 'Your Name'}</h2>
               {si && <span className="inline-flex h-5 items-center rounded px-1.5 text-[8px] font-bold tracking-[0.15em] shrink-0" style={{ background: withAlpha(accent, 0.08), color: darken(accent, 0.1) }}>{initials}</span>}
             </div>
-            {title && <p className="mt-1 text-[9px] text-gray-500 truncate">{title}</p>}
-            {businessName && <p className="mt-0.5 text-[11px] font-medium truncate" style={{ color: darken(accent, 0.05) }}>{businessName}</p>}
+            {title && <p className="mt-1 text-[9px] text-gray-500 truncate" style={{ fontFamily: bodyFont }}>{title}</p>}
+            {businessName && <p className="mt-0.5 text-[11px] font-medium truncate" style={{ color: darken(accent, 0.05), fontFamily: bodyFont }}>{businessName}</p>}
           </div>
           {photo && <img src={photo} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover" style={{ border: `1px solid ${withAlpha(accent, 0.1)}` }} />}
         </div>
@@ -101,6 +106,8 @@ export const FullBleedCard: React.FC<CardTemplateProps> = ({ card, cardRef, dime
   const { items, address } = splitContacts(card, 6);
   const sm = items.length > 4;
   const ar = dimensions?.aspectRatio ?? '1.75 / 1';
+  const nameFont = resolveFontStack(card.nameFont);
+  const bodyFont = resolveFontStack(card.bodyFont);
 
   return (
     <div ref={cardRef} className="w-full overflow-hidden rounded-xl transition-all duration-300" style={{ maxWidth: 400, aspectRatio: ar, boxShadow: `0 12px 36px -8px ${withAlpha(accent, 0.35)}` }}>
@@ -109,9 +116,9 @@ export const FullBleedCard: React.FC<CardTemplateProps> = ({ card, cardRef, dime
         <div className="relative z-10 flex h-full flex-col justify-between p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 pt-0.5">
-              <h2 className="truncate text-[19px] font-semibold leading-none tracking-tight" style={{ color: 'rgba(255,255,255,0.95)' }}>{fullName || 'Your Name'}</h2>
-              {title && <p className="mt-1 text-[9px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{title}</p>}
-              {businessName && <p className="mt-0.5 text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.75)' }}>{businessName}</p>}
+              <h2 className="truncate text-[19px] font-semibold leading-none tracking-tight" style={{ color: 'rgba(255,255,255,0.95)', fontFamily: nameFont }}>{fullName || 'Your Name'}</h2>
+              {title && <p className="mt-1 text-[9px]" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: bodyFont }}>{title}</p>}
+              {businessName && <p className="mt-0.5 text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: bodyFont }}>{businessName}</p>}
             </div>
             {photo ? (
               <img src={photo} alt="" className="h-11 w-11 shrink-0 rounded-lg object-cover" style={{ border: '1.5px solid rgba(255,255,255,0.15)' }} />
@@ -142,6 +149,8 @@ export const EditorialCard: React.FC<CardTemplateProps> = ({ card, cardRef, dime
   const accent = accentColor || '#2D3748';
   const { items, address } = splitContacts(card, 6);
   const ar = dimensions?.aspectRatio ?? '1.75 / 1';
+  const nameFont = resolveFontStack(card.nameFont);
+  const bodyFont = resolveFontStack(card.bodyFont);
 
   return (
     <div ref={cardRef} className="w-full overflow-hidden rounded-xl transition-all duration-300" style={{ maxWidth: 400, aspectRatio: ar, boxShadow: '0 2px 16px -4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)' }}>
@@ -150,9 +159,9 @@ export const EditorialCard: React.FC<CardTemplateProps> = ({ card, cardRef, dime
         <div>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-[22px] font-light leading-none tracking-tight" style={{ color: '#1a1a1a' }}>{fullName || 'Your Name'}</h2>
-              {title && <p className="mt-2 text-[9px] font-medium tracking-[0.2em] uppercase" style={{ color: accent }}>{title}</p>}
-              {businessName && <p className="mt-1 text-[11px] font-medium text-gray-500">{businessName}</p>}
+              <h2 className="text-[22px] font-light leading-none tracking-tight" style={{ color: '#1a1a1a', fontFamily: nameFont }}>{fullName || 'Your Name'}</h2>
+              {title && <p className="mt-2 text-[9px] font-medium tracking-[0.2em] uppercase" style={{ color: accent, fontFamily: bodyFont }}>{title}</p>}
+              {businessName && <p className="mt-1 text-[11px] font-medium text-gray-500" style={{ fontFamily: bodyFont }}>{businessName}</p>}
             </div>
             {photo && <img src={photo} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover grayscale hover:grayscale-0 transition-all" style={{ border: `1.5px solid ${withAlpha(accent, 0.12)}` }} />}
           </div>
@@ -192,6 +201,8 @@ export const DarkCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimension
   const { items, address } = splitContacts(card, 6);
   const sm = items.length > 4;
   const ar = dimensions?.aspectRatio ?? '1.75 / 1';
+  const nameFont = resolveFontStack(card.nameFont);
+  const bodyFont = resolveFontStack(card.bodyFont);
 
   return (
     <div ref={cardRef} className="w-full overflow-hidden rounded-xl transition-all duration-300" style={{ maxWidth: 400, aspectRatio: ar, boxShadow: `0 0 32px -4px ${withAlpha(accent, 0.25)}, 0 0 0 1px ${withAlpha(accent, 0.15)}` }}>
@@ -202,9 +213,9 @@ export const DarkCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimension
         <div className="relative z-10 flex h-full flex-col justify-between p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="truncate text-[19px] font-semibold leading-none" style={{ color: lighten(accent, 0.6) }}>{fullName || 'Your Name'}</h2>
-              {title && <p className="mt-1.5 text-[9px] font-medium tracking-widest uppercase" style={{ color: withAlpha(accent, 0.55) }}>{title}</p>}
-              {businessName && <p className="mt-0.5 text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.5)' }}>{businessName}</p>}
+              <h2 className="truncate text-[19px] font-semibold leading-none" style={{ color: lighten(accent, 0.6), fontFamily: nameFont }}>{fullName || 'Your Name'}</h2>
+              {title && <p className="mt-1.5 text-[9px] font-medium tracking-widest uppercase" style={{ color: withAlpha(accent, 0.55), fontFamily: bodyFont }}>{title}</p>}
+              {businessName && <p className="mt-0.5 text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: bodyFont }}>{businessName}</p>}
             </div>
             {photo ? (
               <img src={photo} alt="" className="h-11 w-11 shrink-0 rounded-lg object-cover" style={{ border: `1.5px solid ${withAlpha(accent, 0.3)}` }} />

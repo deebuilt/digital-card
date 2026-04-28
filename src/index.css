@@ -105,3 +105,31 @@
 .animate-scale-in {
   animation: scaleIn 0.3s ease-out both;
 }
+
+/* Lift form inputs out of the "flimsy outline" look. A subtle resting shadow
+ * makes them read as actual surfaces. Scoped to antd inputs only so we don't
+ * affect card artwork, which is intentionally inline-styled. */
+.ant-input-affix-wrapper,
+.ant-input,
+.ant-input-number,
+.ant-select .ant-select-selector,
+.ant-picker {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.03) !important;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.ant-input-affix-wrapper:hover,
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+.ant-picker:hover {
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.ant-input-affix-wrapper-focused,
+.ant-input:focus,
+.ant-input-number-focused,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused {
+  box-shadow: 0 0 0 3px rgba(36, 57, 88, 0.14) !important;
+}

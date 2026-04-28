@@ -46,6 +46,16 @@ export interface CardData {
   headlineColor: string;
   /** Optional override for the QR code color. Empty = accent. */
   qrColor: string;
+  /** Optional Google Font for the handout headline. Empty = template default. */
+  headlineFont: string;
+  /** Optional Google Font for the handout sub-headline. */
+  subheadlineFont: string;
+  /** Optional Google Font for the handout blurb. */
+  blurbFont: string;
+  /** Optional Google Font for the name on business + contact cards. */
+  nameFont: string;
+  /** Optional Google Font for body / secondary text on business + contact cards. */
+  bodyFont: string;
 }
 
 export const emptyCard: CardData = {
@@ -80,6 +90,11 @@ export const emptyCard: CardData = {
   handoutLogoSize: 'md',
   headlineColor: '',
   qrColor: '',
+  headlineFont: '',
+  subheadlineFont: '',
+  blurbFont: '',
+  nameFont: '',
+  bodyFont: '',
 };
 
 export const demoCard: CardData = {
@@ -114,6 +129,11 @@ export const demoCard: CardData = {
   handoutLogoSize: 'md',
   headlineColor: '',
   qrColor: '',
+  headlineFont: '',
+  subheadlineFont: '',
+  blurbFont: '',
+  nameFont: '',
+  bodyFont: '',
 };
 
 export const demoHandout: Partial<CardData> = {

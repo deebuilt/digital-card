@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { CardTemplateProps, withAlpha, darken } from './shared';
+import { resolveFontStack } from '@/lib/fonts';
 
 const DEFAULT_QR_TARGET = 'https://opsette.io';
 
@@ -64,7 +65,8 @@ const Blurb: React.FC<{
   align?: 'left' | 'center';
   maxWidth?: string;
   marginBottom?: number;
-}> = ({ html, color, fontSize = 12, align = 'left', maxWidth, marginBottom = 0 }) => {
+  fontFamily?: string;
+}> = ({ html, color, fontSize = 12, align = 'left', maxWidth, marginBottom = 0, fontFamily }) => {
   if (!html || html === '<p></p>') return null;
   return (
     <div
@@ -74,6 +76,7 @@ const Blurb: React.FC<{
         lineHeight: 1.5,
         color,
         maxWidth,
+        fontFamily,
         marginInline: align === 'center' ? 'auto' : undefined,
         textAlign: align,
         margin: align === 'center' && maxWidth ? `0 auto ${marginBottom}px` : `0 0 ${marginBottom}px`,
@@ -152,6 +155,10 @@ export const HandoutCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimens
   const ar = dimensions?.aspectRatio ?? '4 / 6';
   const isDarkTheme = handoutTheme === 'dark';
 
+  const headlineFontStack = resolveFontStack(card.headlineFont);
+  const subheadFontStack = resolveFontStack(card.subheadlineFont);
+  const blurbFontStack = resolveFontStack(card.blurbFont);
+
   // Resolved colors. headlineColor / qrColor are user overrides; if blank,
   // fall back to theme-appropriate defaults.
   const resolvedHeadline = headlineColor || (isDarkTheme ? '#ffffff' : '#1a1a1a');
@@ -190,18 +197,18 @@ export const HandoutCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimens
           <div className="flex flex-col justify-between" style={{ padding: '20px 18px', background: leftBg }}>
             <div>
               {subheadline && (
-                <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: subheadColor }}>
+                <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: subheadColor, fontFamily: subheadFontStack }}>
                   {subheadline}
                 </div>
               )}
               {headline && (
-                <h2 style={{ marginTop: 6, fontSize: 22, lineHeight: 1.05, fontWeight: 700, color: resolvedHeadline, letterSpacing: '-0.01em' }}>
+                <h2 style={{ marginTop: 6, fontSize: 22, lineHeight: 1.05, fontWeight: 700, color: resolvedHeadline, letterSpacing: '-0.01em', fontFamily: headlineFontStack }}>
                   {headline}
                 </h2>
               )}
             </div>
             <div>
-              <Blurb html={blurb} color={blurbColor} fontSize={11} align="left" marginBottom={12} />
+              <Blurb html={blurb} color={blurbColor} fontSize={11} align="left" marginBottom={12} fontFamily={blurbFontStack} />
               <Cta label={ctaLabel} accent={accent} onDark={ctaOnDark} />
             </div>
             {(photo || fullName || businessName) && (
@@ -270,7 +277,7 @@ export const HandoutCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimens
             )}
             <div style={{ textAlign: 'right' }}>
               {subheadline && (
-                <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: subheadColor }}>
+                <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: subheadColor, fontFamily: subheadFontStack }}>
                   {subheadline}
                 </div>
               )}
@@ -282,12 +289,12 @@ export const HandoutCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimens
           <div className="flex-1 flex items-center justify-center text-center" style={{ padding: '12px 4px' }}>
             <div>
               {headline && (
-                <h2 style={{ fontSize: 26, lineHeight: 1.05, fontWeight: 700, color: resolvedHeadline, letterSpacing: '-0.01em', margin: 0 }}>
+                <h2 style={{ fontSize: 26, lineHeight: 1.05, fontWeight: 700, color: resolvedHeadline, letterSpacing: '-0.01em', margin: 0, fontFamily: headlineFontStack }}>
                   {headline}
                 </h2>
               )}
               <div style={{ marginTop: 12 }}>
-                <Blurb html={blurb} color={blurbColor} fontSize={12} align="center" maxWidth="92%" />
+                <Blurb html={blurb} color={blurbColor} fontSize={12} align="center" maxWidth="92%" fontFamily={blurbFontStack} />
               </div>
               <div style={{ marginTop: 14 }}>
                 <Cta label={ctaLabel} accent={accent} onDark={ctaOnDark} />
@@ -328,12 +335,12 @@ export const HandoutCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimens
             />
           )}
           {subheadline && (
-            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: subheadColor }}>
+            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: subheadColor, fontFamily: subheadFontStack }}>
               {subheadline}
             </div>
           )}
           {headline && (
-            <h2 style={{ marginTop: 4, fontSize: 28, lineHeight: 1.05, fontWeight: 700, color: resolvedHeadline, letterSpacing: '-0.01em' }}>
+            <h2 style={{ marginTop: 4, fontSize: 28, lineHeight: 1.05, fontWeight: 700, color: resolvedHeadline, letterSpacing: '-0.01em', fontFamily: headlineFontStack }}>
               {headline}
             </h2>
           )}
@@ -342,7 +349,7 @@ export const HandoutCard: React.FC<CardTemplateProps> = ({ card, cardRef, dimens
           <QrPanel src={qr} accent={accent} widthPct={62} tone={qrTone} />
         </div>
         <div style={{ textAlign: 'center' }}>
-          <Blurb html={blurb} color={blurbColor} fontSize={12} align="center" maxWidth="85%" marginBottom={12} />
+          <Blurb html={blurb} color={blurbColor} fontSize={12} align="center" maxWidth="85%" marginBottom={12} fontFamily={blurbFontStack} />
           <Cta label={ctaLabel} accent={accent} onDark={ctaOnDark} />
           {(fullName || businessName) && (
             <div style={{ marginTop: 14, fontSize: 10, color: footerColor }}>
