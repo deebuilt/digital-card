@@ -1,7 +1,8 @@
 import React from 'react';
-import { CardData, isBusinessStyle } from '@/types/card';
+import { CardData, isBusinessStyle, isHandoutStyle } from '@/types/card';
 import { MonogramCard, WordmarkCard, FullBleedCard, EditorialCard, DarkCard } from './cards/BusinessCards';
 import { ProfileCard, SplitCard, StackedCard } from './cards/VCardTemplates';
+import { HandoutCard } from './cards/HandoutCard';
 import type { Dimensions } from '@/lib/print';
 
 const templates: Record<string, React.FC<{ card: CardData; cardRef?: React.RefObject<HTMLDivElement>; dimensions?: Dimensions }>> = {
@@ -13,6 +14,7 @@ const templates: Record<string, React.FC<{ card: CardData; cardRef?: React.RefOb
   profile: ProfileCard,
   split: SplitCard,
   stacked: StackedCard,
+  handout: HandoutCard,
 };
 
 interface PrintCardProps {
@@ -23,7 +25,7 @@ interface PrintCardProps {
 
 const PrintCard: React.FC<PrintCardProps> = ({ card, dimensions, outerRef }) => {
   const Template = templates[card.cardStyle] || MonogramCard;
-  const isBusiness = isBusinessStyle(card.cardStyle);
+  const passDims = isBusinessStyle(card.cardStyle) || isHandoutStyle(card.cardStyle);
   return (
     <div
       ref={outerRef}
@@ -33,7 +35,7 @@ const PrintCard: React.FC<PrintCardProps> = ({ card, dimensions, outerRef }) => 
         background: 'transparent',
       }}
     >
-      <Template card={card} dimensions={isBusiness ? dimensions : undefined} />
+      <Template card={card} dimensions={passDims ? dimensions : undefined} />
     </div>
   );
 };

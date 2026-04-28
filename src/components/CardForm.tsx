@@ -2,7 +2,8 @@ import React, { useRef, useState } from 'react';
 import { Button, Input, Upload, theme as antdTheme } from 'antd';
 import type { UploadProps } from 'antd';
 import { UploadOutlined, DeleteOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
-import { CardData, demoCard, emptyCard } from '@/types/card';
+import { CardData, demoCard, demoHandout, emptyCard, isHandoutStyle } from '@/types/card';
+import BlurbEditor from './BlurbEditor';
 
 interface CardFormProps {
   card: CardData;
@@ -13,7 +14,10 @@ const CardForm: React.FC<CardFormProps> = ({ card, onChange }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [showSocials, setShowSocials] = useState(false);
   const { token } = antdTheme.useToken();
-  const isEmpty = !card.fullName && !card.email && !card.phone;
+  const isHandout = isHandoutStyle(card.cardStyle);
+  const isEmpty = isHandout
+    ? !card.headline && !card.blurb && !card.ctaUrl
+    : !card.fullName && !card.email && !card.phone;
   const hasSocials = !!(card.linkedin || card.tiktok || card.twitter || card.youtube || card.whatsapp || card.threads);
 
   const set = (key: keyof CardData, value: string) => onChange({ ...card, [key]: value });
@@ -36,7 +40,15 @@ const CardForm: React.FC<CardFormProps> = ({ card, onChange }) => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {isEmpty ? (
-          <Button size="small" shape="round" onClick={() => onChange({ ...demoCard })}>
+          <Button
+            size="small"
+            shape="round"
+            onClick={() =>
+              isHandout
+                ? onChange({ ...emptyCard, ...demoHandout })
+                : onChange({ ...demoCard })
+            }
+          >
             Load example
           </Button>
         ) : (
@@ -44,7 +56,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, onChange }) => {
             size="small"
             shape="round"
             onClick={() => {
-              onChange({ ...emptyCard });
+              onChange({ ...emptyCard, cardStyle: card.cardStyle, cardSize: card.cardSize });
               if (fileRef.current) fileRef.current.value = '';
             }}
           >
@@ -53,211 +65,354 @@ const CardForm: React.FC<CardFormProps> = ({ card, onChange }) => {
         )}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div>
-          <span style={labelStyle}>Full Name</span>
-          <Input
-            value={card.fullName}
-            onChange={e => set('fullName', e.target.value)}
-            placeholder="Jordan Rivera"
-            size="large"
-          />
+      {isHandout ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <span style={labelStyle}>Headline</span>
+            <Input
+              value={card.headline}
+              onChange={e => set('headline', e.target.value)}
+              placeholder="Find your style"
+              size="large"
+              maxLength={48}
+              showCount
+            />
+          </div>
+          <div>
+            <span style={labelStyle}>Sub-headline</span>
+            <Input
+              value={card.subheadline}
+              onChange={e => set('subheadline', e.target.value)}
+              placeholder="New client offer"
+              size="large"
+              maxLength={32}
+            />
+          </div>
+          <div>
+            <span style={labelStyle}>Blurb</span>
+            <BlurbEditor
+              value={card.blurb}
+              onChange={(html) => set('blurb', html)}
+            />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
+            <div>
+              <span style={labelStyle}>CTA label</span>
+              <Input
+                value={card.ctaLabel}
+                onChange={e => set('ctaLabel', e.target.value)}
+                placeholder="Book online"
+                size="large"
+                maxLength={20}
+              />
+            </div>
+            <div>
+              <span style={labelStyle}>QR / CTA URL</span>
+              <Input
+                type="url"
+                value={card.ctaUrl}
+                onChange={e => set('ctaUrl', e.target.value)}
+                placeholder="https://opsette.io"
+                size="large"
+              />
+            </div>
+          </div>
+
+          <div style={{ borderTop: `1px dashed ${token.colorBorderSecondary}`, paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <span style={{ fontSize: 11, color: muted, fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Signature
+            </span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <span style={labelStyle}>Your name / brand</span>
+                <Input
+                  value={card.fullName}
+                  onChange={e => set('fullName', e.target.value)}
+                  placeholder="Glow Studio"
+                  size="large"
+                />
+              </div>
+              <div>
+                <span style={labelStyle}>Tagline / business</span>
+                <Input
+                  value={card.businessName}
+                  onChange={e => set('businessName', e.target.value)}
+                  placeholder="Optional"
+                  size="large"
+                />
+              </div>
+            </div>
+            <div>
+              <span style={labelStyle}>Logo / photo</span>
+              {card.photo ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <img
+                    src={card.photo}
+                    alt="Current logo"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 8,
+                      objectFit: 'cover',
+                      border: `1px solid ${token.colorBorderSecondary}`,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Upload {...uploadProps}>
+                    <Button icon={<UploadOutlined />} size="middle">
+                      Change
+                    </Button>
+                  </Upload>
+                  <Button
+                    type="text"
+                    size="middle"
+                    icon={<DeleteOutlined />}
+                    onClick={() => set('photo', '')}
+                    style={{ color: muted }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <Upload {...uploadProps}>
+                  <Button icon={<UploadOutlined />} size="large" block>
+                    Upload image
+                  </Button>
+                </Upload>
+              )}
+              <span style={{ fontSize: 10, color: muted, display: 'block', marginTop: 6 }}>
+                Use a 512×512 px or larger image for crisp print quality.
+              </span>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <span style={labelStyle}>Title</span>
+            <span style={labelStyle}>Full Name</span>
             <Input
-              value={card.title}
-              onChange={e => set('title', e.target.value)}
-              placeholder="Lead Stylist"
+              value={card.fullName}
+              onChange={e => set('fullName', e.target.value)}
+              placeholder="Jordan Rivera"
               size="large"
             />
           </div>
-          <div>
-            <span style={labelStyle}>Business</span>
-            <Input
-              value={card.businessName}
-              onChange={e => set('businessName', e.target.value)}
-              placeholder="Glow Studio"
-              size="large"
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <span style={labelStyle}>Title</span>
+              <Input
+                value={card.title}
+                onChange={e => set('title', e.target.value)}
+                placeholder="Lead Stylist"
+                size="large"
+              />
+            </div>
+            <div>
+              <span style={labelStyle}>Business</span>
+              <Input
+                value={card.businessName}
+                onChange={e => set('businessName', e.target.value)}
+                placeholder="Glow Studio"
+                size="large"
+              />
+            </div>
           </div>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div>
-            <span style={labelStyle}>Phone</span>
-            <Input
-              type="tel"
-              value={card.phone}
-              onChange={e => set('phone', e.target.value)}
-              placeholder="+1 555 234 5678"
-              size="large"
-            />
-          </div>
-          <div>
-            <span style={labelStyle}>Email</span>
-            <Input
-              type="email"
-              value={card.email}
-              onChange={e => set('email', e.target.value)}
-              placeholder="you@email.com"
-              size="large"
-            />
-          </div>
-        </div>
-        <div>
-          <span style={labelStyle}>Website</span>
-          <Input
-            type="url"
-            value={card.website}
-            onChange={e => set('website', e.target.value)}
-            placeholder="https://yoursite.com"
-            size="large"
-          />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div>
-            <span style={labelStyle}>Instagram</span>
-            <Input
-              value={card.instagram}
-              onChange={e => set('instagram', e.target.value)}
-              placeholder="@handle"
-              size="large"
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <span style={labelStyle}>Phone</span>
+              <Input
+                type="tel"
+                value={card.phone}
+                onChange={e => set('phone', e.target.value)}
+                placeholder="+1 555 234 5678"
+                size="large"
+              />
+            </div>
+            <div>
+              <span style={labelStyle}>Email</span>
+              <Input
+                type="email"
+                value={card.email}
+                onChange={e => set('email', e.target.value)}
+                placeholder="you@email.com"
+                size="large"
+              />
+            </div>
           </div>
           <div>
-            <span style={labelStyle}>Facebook</span>
+            <span style={labelStyle}>Website</span>
             <Input
               type="url"
-              value={card.facebook}
-              onChange={e => set('facebook', e.target.value)}
-              placeholder="facebook.com/page"
+              value={card.website}
+              onChange={e => set('website', e.target.value)}
+              placeholder="https://yoursite.com"
               size="large"
             />
           </div>
-        </div>
-
-        <div>
-          <Button
-            type="link"
-            size="small"
-            icon={showSocials ? <MinusOutlined /> : <PlusOutlined />}
-            onClick={() => setShowSocials(!showSocials)}
-            style={{ paddingLeft: 0, color: muted }}
-          >
-            {showSocials ? 'fewer fields' : 'more socials'}
-            {hasSocials && !showSocials && (
-              <span style={{ marginLeft: 4, opacity: 0.5 }}>*</span>
-            )}
-          </Button>
-        </div>
-
-        {showSocials && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-              paddingLeft: 12,
-              borderLeft: `2px solid ${token.colorBorderSecondary}`,
-            }}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <span style={labelStyle}>LinkedIn</span>
-                <Input
-                  type="url"
-                  value={card.linkedin}
-                  onChange={e => set('linkedin', e.target.value)}
-                  placeholder="linkedin.com/in/you"
-                  size="large"
-                />
-              </div>
-              <div>
-                <span style={labelStyle}>TikTok</span>
-                <Input
-                  value={card.tiktok}
-                  onChange={e => set('tiktok', e.target.value)}
-                  placeholder="@handle"
-                  size="large"
-                />
-              </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <span style={labelStyle}>Instagram</span>
+              <Input
+                value={card.instagram}
+                onChange={e => set('instagram', e.target.value)}
+                placeholder="@handle"
+                size="large"
+              />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <span style={labelStyle}>X / Twitter</span>
-                <Input
-                  value={card.twitter}
-                  onChange={e => set('twitter', e.target.value)}
-                  placeholder="@handle"
-                  size="large"
-                />
-              </div>
-              <div>
-                <span style={labelStyle}>YouTube</span>
-                <Input
-                  type="url"
-                  value={card.youtube}
-                  onChange={e => set('youtube', e.target.value)}
-                  placeholder="youtube.com/@ch"
-                  size="large"
-                />
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <span style={labelStyle}>WhatsApp</span>
-                <Input
-                  type="tel"
-                  value={card.whatsapp}
-                  onChange={e => set('whatsapp', e.target.value)}
-                  placeholder="+1 555 234 5678"
-                  size="large"
-                />
-              </div>
-              <div>
-                <span style={labelStyle}>Threads</span>
-                <Input
-                  value={card.threads}
-                  onChange={e => set('threads', e.target.value)}
-                  placeholder="@handle"
-                  size="large"
-                />
-              </div>
+            <div>
+              <span style={labelStyle}>Facebook</span>
+              <Input
+                type="url"
+                value={card.facebook}
+                onChange={e => set('facebook', e.target.value)}
+                placeholder="facebook.com/page"
+                size="large"
+              />
             </div>
           </div>
-        )}
 
-        <div>
-          <span style={labelStyle}>Address</span>
-          <Input.TextArea
-            value={card.address}
-            onChange={e => set('address', e.target.value)}
-            placeholder="123 Main St, City, State"
-            autoSize={{ minRows: 1, maxRows: 4 }}
-          />
-        </div>
-
-        <div>
-          <span style={labelStyle}>Photo / Logo</span>
-          <Upload {...uploadProps}>
-            <Button icon={<UploadOutlined />} size="large" block>
-              {card.photo ? 'Change image' : 'Upload image'}
-            </Button>
-          </Upload>
-          {card.photo && (
+          <div>
             <Button
-              type="text"
+              type="link"
               size="small"
-              icon={<DeleteOutlined />}
-              onClick={() => set('photo', '')}
-              style={{ marginTop: 4, color: muted, paddingLeft: 0 }}
+              icon={showSocials ? <MinusOutlined /> : <PlusOutlined />}
+              onClick={() => setShowSocials(!showSocials)}
+              style={{ paddingLeft: 0, color: muted }}
             >
-              Remove
+              {showSocials ? 'fewer fields' : 'more socials'}
+              {hasSocials && !showSocials && (
+                <span style={{ marginLeft: 4, opacity: 0.5 }}>*</span>
+              )}
             </Button>
+          </div>
+
+          {showSocials && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                paddingLeft: 12,
+                borderLeft: `2px solid ${token.colorBorderSecondary}`,
+              }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <span style={labelStyle}>LinkedIn</span>
+                  <Input
+                    type="url"
+                    value={card.linkedin}
+                    onChange={e => set('linkedin', e.target.value)}
+                    placeholder="linkedin.com/in/you"
+                    size="large"
+                  />
+                </div>
+                <div>
+                  <span style={labelStyle}>TikTok</span>
+                  <Input
+                    value={card.tiktok}
+                    onChange={e => set('tiktok', e.target.value)}
+                    placeholder="@handle"
+                    size="large"
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <span style={labelStyle}>X / Twitter</span>
+                  <Input
+                    value={card.twitter}
+                    onChange={e => set('twitter', e.target.value)}
+                    placeholder="@handle"
+                    size="large"
+                  />
+                </div>
+                <div>
+                  <span style={labelStyle}>YouTube</span>
+                  <Input
+                    type="url"
+                    value={card.youtube}
+                    onChange={e => set('youtube', e.target.value)}
+                    placeholder="youtube.com/@ch"
+                    size="large"
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <span style={labelStyle}>WhatsApp</span>
+                  <Input
+                    type="tel"
+                    value={card.whatsapp}
+                    onChange={e => set('whatsapp', e.target.value)}
+                    placeholder="+1 555 234 5678"
+                    size="large"
+                  />
+                </div>
+                <div>
+                  <span style={labelStyle}>Threads</span>
+                  <Input
+                    value={card.threads}
+                    onChange={e => set('threads', e.target.value)}
+                    placeholder="@handle"
+                    size="large"
+                  />
+                </div>
+              </div>
+            </div>
           )}
+
+          <div>
+            <span style={labelStyle}>Address</span>
+            <Input.TextArea
+              value={card.address}
+              onChange={e => set('address', e.target.value)}
+              placeholder="123 Main St, City, State"
+              autoSize={{ minRows: 1, maxRows: 4 }}
+            />
+          </div>
+
+          <div>
+            <span style={labelStyle}>Photo / Logo</span>
+            {card.photo ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <img
+                  src={card.photo}
+                  alt="Current photo"
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 8,
+                    objectFit: 'cover',
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                    flexShrink: 0,
+                  }}
+                />
+                <Upload {...uploadProps}>
+                  <Button icon={<UploadOutlined />} size="middle">
+                    Change
+                  </Button>
+                </Upload>
+                <Button
+                  type="text"
+                  size="middle"
+                  icon={<DeleteOutlined />}
+                  onClick={() => set('photo', '')}
+                  style={{ color: muted }}
+                >
+                  Remove
+                </Button>
+              </div>
+            ) : (
+              <Upload {...uploadProps}>
+                <Button icon={<UploadOutlined />} size="large" block>
+                  Upload image
+                </Button>
+              </Upload>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

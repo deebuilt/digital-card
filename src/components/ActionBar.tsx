@@ -9,7 +9,8 @@ import {
   IdcardOutlined,
   SaveOutlined,
 } from '@ant-design/icons';
-import { CardData, isBusinessStyle } from '@/types/card';
+import QRCode from 'qrcode';
+import { CardData, isBusinessStyle, isHandoutStyle } from '@/types/card';
 import { getShareableUrl } from '@/lib/share';
 import { downloadVCard } from '@/lib/vcard';
 import { getDimensions } from '@/lib/print';
@@ -30,10 +31,22 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
   const { message } = AntApp.useApp();
   const dims = getDimensions(card.cardSize);
   const isBusiness = isBusinessStyle(card.cardStyle);
+  const isHandout = isHandoutStyle(card.cardStyle);
+  // Print-quality export is meaningful for anything that has a defined trim
+  // size — both business cards and handouts. Contact cards are share-only.
+  const printableForExport = isBusiness || isHandout;
 
   const requireName = (): boolean => {
     if (!card.fullName) {
       message.error('Enter a name first');
+      return false;
+    }
+    return true;
+  };
+
+  const requireHeadline = (): boolean => {
+    if (!card.headline) {
+      message.error('Enter a headline first');
       return false;
     }
     return true;
@@ -49,7 +62,7 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
   const downloadImageWeb = async () => {
     if (!cardRef.current) return;
     try {
-      await exportWebImage(cardRef.current, `${card.fullName || 'card'}.png`);
+      await exportWebImage(cardRef.current, `${card.fullName || card.headline || 'card'}.png`);
       message.success('Image saved');
     } catch {
       message.error('Export failed');
@@ -57,8 +70,8 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
   };
 
   const downloadImagePrint = async () => {
-    if (!isBusiness) {
-      message.info('Print-quality export is only available for business cards');
+    if (!printableForExport) {
+      message.info('Print-quality export is only available for business cards and handouts');
       return;
     }
     const container = document.createElement('div');
@@ -68,11 +81,10 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
     document.body.appendChild(container);
     setCaptureContainer(container);
     try {
-      // Wait two animation frames so React commits + layout resolves.
       await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r())));
       const node = printCardRef.current;
       if (!node) throw new Error('print card not mounted');
-      await exportPrintImage(node, `${card.fullName || 'card'}-print.png`);
+      await exportPrintImage(node, `${card.fullName || card.headline || 'card'}-print.png`);
       message.success('Print-quality image saved');
     } catch {
       message.error('Export failed');
@@ -89,7 +101,11 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
   };
 
   const handleSave = () => {
-    if (!requireName()) return;
+    if (isHandout) {
+      if (!requireHeadline()) return;
+    } else {
+      if (!requireName()) return;
+    }
     onSave();
     message.success('Saved');
   };
@@ -99,6 +115,27 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
     setQrOpen(true);
   };
 
+  const downloadQrOnly = async () => {
+    const target = card.ctaUrl || 'https://opsette.io';
+    try {
+      const color = card.qrColor || card.accentColor || '#2D3748';
+      const hex = color.replace('#', '').padEnd(6, '0').slice(0, 6);
+      const dataUrl = await QRCode.toDataURL(target, {
+        width: 1024,
+        margin: 2,
+        color: { dark: `#${hex}`, light: '#ffffff' },
+        errorCorrectionLevel: 'M',
+      });
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `${card.headline ? card.headline.replace(/\s+/g, '-').toLowerCase() : 'handout'}-qr.png`;
+      a.click();
+      message.success('QR saved');
+    } catch {
+      message.error('QR export failed');
+    }
+  };
+
   const exportMenu: MenuProps = {
     items: [
       { key: 'web', icon: <DownloadOutlined />, label: 'Image (web)' },
@@ -106,41 +143,66 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
         key: 'print',
         icon: <DownloadOutlined />,
         label: 'Image (print quality)',
-        disabled: !isBusiness,
+        disabled: !printableForExport,
       },
+      ...(isHandout
+        ? [
+            { type: 'divider' as const },
+            { key: 'qr', icon: <QrcodeOutlined />, label: 'Download QR (1024px)' },
+          ]
+        : []),
     ],
     onClick: ({ key }) => {
       if (key === 'web') downloadImageWeb();
       else if (key === 'print') downloadImagePrint();
+      else if (key === 'qr') downloadQrOnly();
     },
   };
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-        <Button icon={<LinkOutlined />} onClick={copyLink} style={{ height: 40 }}>
-          Link
-        </Button>
-        <Dropdown menu={exportMenu} trigger={['click']}>
-          <Button icon={<DownloadOutlined />} style={{ height: 40 }}>
-            Export
+      {isHandout ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <Dropdown menu={exportMenu} trigger={['click']}>
+            <Button icon={<DownloadOutlined />} style={{ height: 40 }}>
+              Export
+            </Button>
+          </Dropdown>
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={handleSave}
+            style={{ height: 40 }}
+          >
+            Save
           </Button>
-        </Dropdown>
-        <Button icon={<QrcodeOutlined />} onClick={handleQr} style={{ height: 40 }}>
-          QR
-        </Button>
-        <Button icon={<IdcardOutlined />} onClick={handleVCard} style={{ height: 40 }}>
-          vCard
-        </Button>
-        <Button
-          type="primary"
-          icon={<SaveOutlined />}
-          onClick={handleSave}
-          style={{ height: 40, gridColumn: 'span 2' }}
-        >
-          Save Card
-        </Button>
-      </div>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          <Button icon={<LinkOutlined />} onClick={copyLink} style={{ height: 40 }}>
+            Link
+          </Button>
+          <Dropdown menu={exportMenu} trigger={['click']}>
+            <Button icon={<DownloadOutlined />} style={{ height: 40 }}>
+              Export
+            </Button>
+          </Dropdown>
+          <Button icon={<QrcodeOutlined />} onClick={handleQr} style={{ height: 40 }}>
+            QR
+          </Button>
+          <Button icon={<IdcardOutlined />} onClick={handleVCard} style={{ height: 40 }}>
+            vCard
+          </Button>
+          <Button
+            type="primary"
+            icon={<SaveOutlined />}
+            onClick={handleSave}
+            style={{ height: 40, gridColumn: 'span 2' }}
+          >
+            Save Card
+          </Button>
+        </div>
+      )}
 
       <QrModal card={card} open={qrOpen} onClose={() => setQrOpen(false)} />
 

@@ -1,7 +1,16 @@
 import React from 'react';
 import { Segmented, Select, Switch, Tooltip, theme as antdTheme } from 'antd';
-import { CardData, CardStyle, CardSize, isBusinessStyle } from '@/types/card';
-import { SIZE_OPTIONS, getDimensions } from '@/lib/print';
+import {
+  CardData,
+  CardStyle,
+  CardSize,
+  HandoutVariant,
+  HandoutTheme,
+  HandoutLogoSize,
+  isBusinessStyle,
+  isHandoutStyle,
+} from '@/types/card';
+import { SIZE_OPTIONS, HANDOUT_SIZE_OPTIONS, getDimensions } from '@/lib/print';
 
 interface StyleBarProps {
   card: CardData;
@@ -29,6 +38,13 @@ const STYLE_GROUPS: { group: string; hint: string; items: { value: CardStyle; la
       { value: 'stacked', label: 'Stacked' },
     ],
   },
+  {
+    group: 'Marketing Handout',
+    hint: 'QR + headline · printable',
+    items: [
+      { value: 'handout', label: 'Handout' },
+    ],
+  },
 ];
 
 const COLORS = [
@@ -36,10 +52,79 @@ const COLORS = [
   '#9B4D4D', '#5C6B5C', '#7A6855', '#3D5A80', '#704C38',
 ];
 
+const HANDOUT_VARIANTS: { value: HandoutVariant; label: string }[] = [
+  { value: 'hero',   label: 'QR Hero' },
+  { value: 'side',   label: 'QR Side' },
+  { value: 'corner', label: 'QR Corner' },
+];
+
+interface ColorOverrideProps {
+  value: string;
+  fallback: string;
+  onChange: (v: string) => void;
+  token: ReturnType<typeof antdTheme.useToken>['token'];
+}
+
+const ColorOverride: React.FC<ColorOverrideProps> = ({ value, fallback, onChange, token }) => {
+  const isOverridden = !!value;
+  const displayed = value || fallback;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <Tooltip title={isOverridden ? `Custom: ${value}` : `Default: ${fallback}`} mouseEnterDelay={0.4}>
+        <input
+          type="color"
+          value={displayed}
+          onChange={e => onChange(e.target.value)}
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            cursor: 'pointer',
+            border: isOverridden ? `2px solid ${token.colorText}` : '2px solid transparent',
+            padding: 0,
+            background: 'transparent',
+          }}
+          aria-label="Pick color"
+        />
+      </Tooltip>
+      {isOverridden && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          style={{
+            fontSize: 10,
+            color: token.colorTextSecondary,
+            background: 'transparent',
+            border: 'none',
+            padding: '0 4px',
+            cursor: 'pointer',
+          }}
+          aria-label="Reset to default"
+        >
+          reset
+        </button>
+      )}
+    </div>
+  );
+};
+
 const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
   const { token } = antdTheme.useToken();
   const set = <K extends keyof CardData>(key: K, value: CardData[K]) => onChange({ ...card, [key]: value });
+
+  /** Switching style may need to coerce cardSize into the right tier. */
+  const handleStyleChange = (next: CardStyle) => {
+    let cardSize = card.cardSize;
+    if (isHandoutStyle(next) && !cardSize.startsWith('handout-')) {
+      cardSize = 'handout-4x6';
+    } else if (!isHandoutStyle(next) && cardSize.startsWith('handout-')) {
+      cardSize = 'us-business';
+    }
+    onChange({ ...card, cardStyle: next, cardSize });
+  };
+
   const isBusiness = isBusinessStyle(card.cardStyle);
+  const isHandout = isHandoutStyle(card.cardStyle);
   const dims = getDimensions(card.cardSize);
 
   const options = STYLE_GROUPS.map(group => ({
@@ -54,6 +139,9 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
     title: group.group,
     options: group.items.map(item => ({ value: item.value, label: item.label })),
   }));
+
+  const sizeOptions = isHandout ? HANDOUT_SIZE_OPTIONS : SIZE_OPTIONS;
+  const showSizeRow = isBusiness || isHandout;
 
   return (
     <div
@@ -70,11 +158,68 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
     >
       <Select<CardStyle>
         value={card.cardStyle}
-        onChange={(v) => set('cardStyle', v)}
+        onChange={handleStyleChange}
         options={options}
         style={{ width: '100%' }}
         size="large"
       />
+
+      {isHandout && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Segmented<HandoutVariant>
+            block
+            size="middle"
+            value={card.handoutVariant}
+            onChange={(v) => set('handoutVariant', v as HandoutVariant)}
+            options={HANDOUT_VARIANTS}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Card style</span>
+            <Segmented<HandoutTheme>
+              size="small"
+              value={card.handoutTheme}
+              onChange={(v) => set('handoutTheme', v as HandoutTheme)}
+              options={[
+                { value: 'light', label: 'Light' },
+                { value: 'dark', label: 'Dark' },
+              ]}
+            />
+          </div>
+          {card.photo && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Logo size</span>
+              <Segmented<HandoutLogoSize>
+                size="small"
+                value={card.handoutLogoSize || 'md'}
+                onChange={(v) => set('handoutLogoSize', v as HandoutLogoSize)}
+                options={[
+                  { value: 'sm', label: 'S' },
+                  { value: 'md', label: 'M' },
+                  { value: 'lg', label: 'L' },
+                ]}
+              />
+            </div>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>Headline color</span>
+            <ColorOverride
+              value={card.headlineColor}
+              fallback={card.handoutTheme === 'dark' ? '#ffffff' : '#1a1a1a'}
+              onChange={(v) => set('headlineColor', v)}
+              token={token}
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 500 }}>QR color</span>
+            <ColorOverride
+              value={card.qrColor}
+              fallback={card.accentColor || '#2D3748'}
+              onChange={(v) => set('qrColor', v)}
+              token={token}
+            />
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', flex: 1 }}>
@@ -108,18 +253,20 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
             />
           </Tooltip>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Switch
-            size="small"
-            checked={card.showInitials}
-            onChange={(checked) => set('showInitials', checked)}
-            style={card.showInitials ? { backgroundColor: card.accentColor } : undefined}
-          />
-          <span style={{ fontSize: 11, color: token.colorTextSecondary, userSelect: 'none' }}>AB</span>
-        </div>
+        {!isHandout && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Switch
+              size="small"
+              checked={card.showInitials}
+              onChange={(checked) => set('showInitials', checked)}
+              style={card.showInitials ? { backgroundColor: card.accentColor } : undefined}
+            />
+            <span style={{ fontSize: 11, color: token.colorTextSecondary, userSelect: 'none' }}>AB</span>
+          </div>
+        )}
       </div>
 
-      {isBusiness && (
+      {showSizeRow && (
         <div
           style={{
             display: 'flex',
@@ -135,7 +282,7 @@ const StyleBar: React.FC<StyleBarProps> = ({ card, onChange }) => {
               size="small"
               value={card.cardSize}
               onChange={(v) => set('cardSize', v as CardSize)}
-              options={SIZE_OPTIONS}
+              options={sizeOptions}
             />
           </div>
           {dims.showGuides && (
