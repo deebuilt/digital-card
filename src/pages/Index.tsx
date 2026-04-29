@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Space, Grid, theme as antdTheme } from 'antd';
 import { CardData, emptyCard } from '@/types/card';
 import { decodeCardFromHash } from '@/lib/share';
-import AppLogo from '@/components/AppLogo';
+import { OpsetteHeader } from '@/components/opsette-header';
 import StyleBar from '@/components/StyleBar';
 import CardForm from '@/components/CardForm';
 import CardPreview from '@/components/CardPreview';
@@ -50,9 +50,6 @@ const Index: React.FC = () => {
     boxShadow: '0 2px 6px -1px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.04)',
   };
 
-  const headerInnerMaxWidth = isDesktop ? 1200 : 480;
-  const headerInnerPadding = isDesktop ? '12px 24px' : '12px 16px';
-
   const footer = (
     <footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 0' }} className="animate-fade-in">
       <Space split={<span style={{ color: token.colorTextQuaternary }}>·</span>} size="small">
@@ -85,21 +82,7 @@ const Index: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100dvh', background: token.colorBgLayout }}>
-      <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          background: token.colorBgContainer,
-          borderBottom: `1px solid ${token.colorBorderSecondary}`,
-          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-        }}
-      >
-        <div style={{ maxWidth: headerInnerMaxWidth, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 10, padding: headerInnerPadding }}>
-          <AppLogo size={28} />
-          <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', color: token.colorText, margin: 0 }}>CardCraft</h1>
-        </div>
-      </header>
+      <OpsetteHeader />
 
       {isDesktop ? (
         <main
@@ -130,7 +113,7 @@ const Index: React.FC = () => {
           <div
             style={{
               position: 'sticky',
-              top: 76, // header height + small breathing room
+              top: 76, // canonical header height (60) + small breathing room
               display: 'flex',
               flexDirection: 'column',
               gap: 16,
