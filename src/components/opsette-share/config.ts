@@ -9,7 +9,7 @@ export type OpsetteShareConfig = {
 };
 
 export const opsetteShareConfig: OpsetteShareConfig = {
-  appName: "CardCraft",
+  appName: "Digital Card",
   tagline: "Create and share your digital business card.",
   url: "https://tools.opsette.io/digital-card/",
   logoSrc: "opsette-logo.png",

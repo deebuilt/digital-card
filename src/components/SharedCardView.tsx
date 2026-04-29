@@ -32,7 +32,7 @@ const SharedCardView: React.FC<SharedCardViewProps> = ({ card }) => {
       >
         <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px' }}>
           <AppLogo size={24} />
-          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', color: token.colorText }}>CardCraft</span>
+          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', color: token.colorText }}>Digital Card</span>
         </div>
       </header>
 
@@ -70,7 +70,7 @@ const SharedCardView: React.FC<SharedCardViewProps> = ({ card }) => {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 10, color: token.colorTextTertiary, marginTop: 16 }}>
-          Made with CardCraft
+          Made with Digital Card
         </p>
       </main>
 

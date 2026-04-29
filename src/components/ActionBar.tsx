@@ -208,7 +208,7 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
 
       <div style={{ textAlign: 'center', marginTop: 10 }}>
         <Button type="link" size="small" onClick={() => setShareAppOpen(true)} style={{ fontSize: 12 }}>
-          Or share the CardCraft app itself →
+          Or share the Digital Card app itself →
         </Button>
       </div>
 

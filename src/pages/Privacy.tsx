@@ -29,7 +29,7 @@ const Privacy: React.FC = () => {
             style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
             <AppLogo size={28} />
-            <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', color: token.colorText }}>CardCraft</span>
+            <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', color: token.colorText }}>Digital Card</span>
           </button>
         </div>
       </header>
@@ -45,7 +45,7 @@ const Privacy: React.FC = () => {
         <Typography style={{ marginTop: 24 }}>
           <Title level={5} style={{ marginBottom: 6 }}>No data collection</Title>
           <Paragraph>
-            CardCraft does not collect, transmit, or store any personal information on external servers. All card data you enter stays entirely on your device in your browser's local storage.
+            Digital Card does not collect, transmit, or store any personal information on external servers. All card data you enter stays entirely on your device in your browser's local storage.
           </Paragraph>
 
           <Title level={5} style={{ marginBottom: 6 }}>Local storage only</Title>
@@ -60,12 +60,12 @@ const Privacy: React.FC = () => {
 
           <Title level={5} style={{ marginBottom: 6 }}>No cookies or tracking</Title>
           <Paragraph>
-            CardCraft does not use cookies, analytics, or any third-party tracking services. There are no ads and no account creation required.
+            Digital Card does not use cookies, analytics, or any third-party tracking services. There are no ads and no account creation required.
           </Paragraph>
 
           <Title level={5} style={{ marginBottom: 6 }}>No account required</Title>
           <Paragraph>
-            You do not need to create an account or provide any credentials to use CardCraft. The app works entirely offline after the initial page load.
+            You do not need to create an account or provide any credentials to use Digital Card. The app works entirely offline after the initial page load.
           </Paragraph>
 
           <Title level={5} style={{ marginBottom: 6 }}>Contact</Title>
