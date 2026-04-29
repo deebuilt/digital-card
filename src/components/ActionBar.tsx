@@ -17,6 +17,7 @@ import { getDimensions } from '@/lib/print';
 import { exportWebImage, exportPrintImage } from '@/lib/export';
 import QrModal from './QrModal';
 import PrintCard from './PrintCard';
+import { ShareAppModal } from '@/components/opsette-share';
 
 interface ActionBarProps {
   card: CardData;
@@ -26,6 +27,7 @@ interface ActionBarProps {
 
 const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
   const [qrOpen, setQrOpen] = useState(false);
+  const [shareAppOpen, setShareAppOpen] = useState(false);
   const [captureContainer, setCaptureContainer] = useState<HTMLDivElement | null>(null);
   const printCardRef = useRef<HTMLDivElement>(null);
   const { message } = AntApp.useApp();
@@ -204,7 +206,14 @@ const ActionBar: React.FC<ActionBarProps> = ({ card, cardRef, onSave }) => {
         </div>
       )}
 
+      <div style={{ textAlign: 'center', marginTop: 10 }}>
+        <Button type="link" size="small" onClick={() => setShareAppOpen(true)} style={{ fontSize: 12 }}>
+          Or share the CardCraft app itself →
+        </Button>
+      </div>
+
       <QrModal card={card} open={qrOpen} onClose={() => setQrOpen(false)} />
+      <ShareAppModal open={shareAppOpen} onClose={() => setShareAppOpen(false)} />
 
       {captureContainer && createPortal(
         <PrintCard card={card} dimensions={dims} outerRef={printCardRef} />,

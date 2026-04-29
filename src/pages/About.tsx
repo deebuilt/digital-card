@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Typography, theme as antdTheme } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import AppLogo from '@/components/AppLogo';
-import { ShareAppButton, OpsetteFooterLogo } from '@/components/opsette-share';
+import { OpsetteFooterLogo } from '@/components/opsette-share';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -31,9 +31,6 @@ const About: React.FC = () => {
             <AppLogo size={28} />
             <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', color: token.colorText }}>CardCraft</span>
           </button>
-          <div style={{ marginLeft: 'auto' }}>
-            <ShareAppButton />
-          </div>
         </div>
       </header>
 
